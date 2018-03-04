@@ -5,7 +5,6 @@ Created on 4.3.2018
 '''
 import pygame
 import os
-import roundrects
 from time import sleep
 
 RED = (255,0,0)
@@ -23,7 +22,12 @@ REYPOS = 160
 stoped = False
 
 os.putenv('SDL_FBDEV', '/dev/fb1')
-state = 1
+NEUTRAL = 1
+LOOKDOWN = 2
+LOOKRIGHT = 3
+LOOKLEFT = 4
+
+state = NEUTRAL
 
 
 def texts(score):
@@ -31,11 +35,9 @@ def texts(score):
    font=pygame.font.Font(None,30)
    scoretext=font.render("FPS:" + str(score), 1,(255,255,255))
    lcd.blit(scoretext, (0, 0))
-   #pygame.display.update()
 
 def neutral():
-  state = 1
-  #lcd.fill((0,0,0))
+  state = NEUTRAL
   #left eye
   pygame.draw.ellipse(lcd, TUR, [LEYPOS, EPOS, EW, EH])
   #right eye
@@ -43,8 +45,7 @@ def neutral():
   pygame.display.update()
 
 def lookdown():
-  state = 2
-  #lcd.fill((0,0,0))
+  state = LOOKDOWN
   #left eye
   pygame.draw.ellipse(lcd, TUR, [LEYPOS, EPOS+20, EW, EH])
   #right eye
@@ -53,8 +54,7 @@ def lookdown():
 
 
 def lookright():
-  state = 3
-  #lcd.fill((0,0,0))
+  state = LOOKRIGHT
   #left eye
   pygame.draw.ellipse(lcd, TUR, [LEYPOS+20, EPOS, EW, EH])
   #right eye
@@ -62,8 +62,7 @@ def lookright():
   pygame.display.update()
 
 def lookleft():
-  state = 4
-  #lcd.fill((0,0,0))
+  state = LOOKLEFT
   #left eye
   pygame.draw.ellipse(lcd, TUR, [LEYPOS-20, EPOS, EW, EH])
   #right eye
@@ -77,37 +76,28 @@ lcd = pygame.display.set_mode((320, 240))
 pygame.display.set_caption('A bit Racey')
 clock = pygame.time.Clock()
 
-#lcd.fill((255,0,0))
-#pic = pygame.image.load("Star.png")
-#picPosit = (10, 10)
-#lcd.blit(pic, picPosit)
-
 neutral()
-#pygame.display.set_caption('A bit Racey')
 
 pygame.display.update()
-#sleep(10)
 pygame.mouse.set_visible(False)
-
-#lcd.fill((0,0,0))
-#pygame.display.update()
-#sleep(10)
 
 fps = 0
 
+
+#MAIN LOOP START HERE
 while not stoped:
  fps = fps+1
  if fps >= 60:
 	fps = 0;
 
  texts(fps)
- if state == 1:
+ if state == NEUTRAL:
 	neutral()
- if state == 2:
+ if state == LOOKDOWN:
 	lookdown()
- if state == 3: 
+ if state == LOOKRIGHT: 
 	lookright()
- if state == 4:
+ if state == LOOKLEFT:
 	lookleft()
  #sleep(2)
  pygame.display.update()
@@ -119,16 +109,16 @@ while not stoped:
 
 	if event.type == pygame.KEYDOWN:
            if event.key == pygame.K_RIGHT:
-		state = 3
+		state = LOOKRIGHT
     	   	lookright()
 	   if event.key == pygame.K_LEFT:
-		state = 4
+		state =  LOOKLEFT
                 lookleft()
 	   if event.key == pygame.K_UP:
-		state = 1
+		state = NEUTRAL
                 neutral()
 	   if event.key == pygame.K_DOWN:
-		state = 2
+		state = LOOKDOWN
                 lookdown()
 	 
 
