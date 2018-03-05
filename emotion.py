@@ -9,6 +9,7 @@ from time import sleep
 
 RED = (255,0,0)
 TUR = (50,156,198)
+BLACK = (0,0,0)
 
 SIZEW = 320
 SIZEH = 240
@@ -26,8 +27,9 @@ NEUTRAL = 1
 LOOKDOWN = 2
 LOOKRIGHT = 3
 LOOKLEFT = 4
+DOUBT = 5
 
-state = NEUTRAL
+state = DOUBT
 
 
 def texts(score):
@@ -42,7 +44,24 @@ def neutral():
   pygame.draw.ellipse(lcd, TUR, [LEYPOS, EPOS, EW, EH])
   #right eye
   pygame.draw.ellipse(lcd, TUR, [REYPOS, EPOS, EW, EH])
+  #pygame.draw.polygon(lcd,RED, points)
   pygame.display.update()
+
+def doubt():
+  state = DOUBT
+  points = list()
+  points.append ((185,0)) #top 185,0
+  points.append ((290,80)) #oikealaita 290,100
+  points.append ((200,80+20)) #alareuna keski 200,120
+  points.append ((152,130)) #vasen 152,130
+
+  #left eye
+  pygame.draw.ellipse(lcd, TUR, [LEYPOS, EPOS, EW, EH])
+  #right eye
+  pygame.draw.ellipse(lcd, TUR, [REYPOS, EPOS, EW, EH])
+  pygame.draw.polygon(lcd,BLACK, points)
+  pygame.display.update()
+
 
 def lookdown():
   state = LOOKDOWN
@@ -73,10 +92,16 @@ def lookleft():
 #Main code
 pygame.init()
 lcd = pygame.display.set_mode((320, 240))
-pygame.display.set_caption('A bit Racey')
 clock = pygame.time.Clock()
 
-neutral()
+#points = list()
+#points.append ((185,0)) #top
+#points.append ((290,100)) #oikealaita
+#points.append ((200,120)) #alareuna keski
+#points.append ((152,130)) #vasen
+
+#neutral()
+doubt()
 
 pygame.display.update()
 pygame.mouse.set_visible(False)
@@ -99,10 +124,12 @@ while not stoped:
 	lookright()
  if state == LOOKLEFT:
 	lookleft()
+ if state == DOUBT:
+	doubt()
  #sleep(2)
  pygame.display.update()
  clock.tick(60)
-
+ 
  for event in pygame.event.get():
         if event.type == pygame.QUIT:
             stoped = True
@@ -120,5 +147,8 @@ while not stoped:
 	   if event.key == pygame.K_DOWN:
 		state = LOOKDOWN
                 lookdown()
+	   if envet.key == pygame.K_D:
+		state = DOUBT
+		doubt()
 	 
 
