@@ -9,24 +9,28 @@ import pygame
 import os
 import select
 import sys
+import time
 from time import sleep
 import botutils
 import emotiondraw as eye
+from random import randint
 
 stoped = False
 
 os.putenv('SDL_FBDEV', '/dev/fb1')
 
 #set default emotion for start
-state = eye.DOUBT
+state = eye.NEUTRAL
+BLINKMAX = 10
 
 #Main code
 pygame.init()
 lcd = pygame.display.set_mode((480, 320),pygame.DOUBLEBUF)
 #pygame.display.set_mode((320, 240))
 clock = pygame.time.Clock()
+blinkStart = time.time()
 #init eyes
-eye.doubt(lcd)
+eye.neutral(lcd)
 #get ip
 myip = botutils.get_ip()
 
@@ -34,11 +38,44 @@ pygame.display.update()
 pygame.mouse.set_visible(False)
 
 fps = 0
-
+blinkCount = 0
+nextBlink = randint(1, BLINKMAX);
+oldState = state
 
 #MAIN LOOP START HERE
 while not stoped:
 	lcd.fill((0,0,0))
+	
+	#BLINK ANIMATE
+	dif =  time.time() - blinkStart 
+	print dif
+	print nextBlink
+	
+	if dif >= nextBlink and blinkCount == 0 and state != eye.DOUBT:
+		print "blink"
+		oldState = state
+		state = eye.BLINK
+		eye.blink(lcd)
+		blinkCount = blinkCount +1
+	elif blinkCount == 1:
+		print "neutral"
+	    	state = oldState
+		#eye.neutral(lcd)
+		blinkCount = blinkCount +1
+	elif blinkCount == 2:
+		print "blink2"
+		state = eye.BLINK
+		eye.blink(lcd)
+		blinkStart = time.time()
+		nextBlink = randint(1, BLINKMAX);
+		blinkCount = 0
+	else:
+		print "old state"
+		state = oldState
+		#eye.neutral(lcd)
+		blinkCount = 0
+		
+	#BLINK ANIMATE DONE
 
 	fps = clock.get_fps()
 	eye.texts(lcd,fps, myip)
@@ -56,6 +93,8 @@ while not stoped:
 		eye.doubt(lcd)
 	if state == eye.HAPPY:
 		eye.happy(lcd)
+	if state == eye.BLINK:
+		eye.blink(lcd)
 
 	#For test eye move via console input
 	i,o,e = select.select([sys.stdin],[],[],0.0001)
@@ -86,6 +125,7 @@ while not stoped:
 				raise SystemExit
 
 			print "echo:" + input
+			oldState = state
 		 
 		 
     #for test eye move from keybord
@@ -111,6 +151,8 @@ while not stoped:
 		    if event.key == pygame.K_h:
 				state = eye.HAPPY
 				eye.happy(lcd)
+				
+		    oldState = state
 
 	clock.tick(25)
 	pygame.display.update()

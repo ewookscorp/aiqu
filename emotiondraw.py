@@ -32,6 +32,7 @@ LOOKRIGHT 	= 	3
 LOOKLEFT 	= 	4
 DOUBT 		= 	5
 HAPPY 		= 	6
+BLINK		= 	7
 
 
 def texts(surface, text1, text2):
@@ -70,7 +71,7 @@ def doubt(surface):
   points.append (((SIZEW/2)+150, (SIZEH/2)-50)) #oikealaita 290,100
 
   #left
-  roundrects.round_rect(surface, [LEYPOS, EYPOS, EW, EH-20], TUR, rad=30)
+  roundrects.round_rect(surface, [LEYPOS, EYPOS+10, EW, EH-30], TUR, rad=30)
   #right
   roundrects.round_rect(surface, [REYPOS, EYPOS, EW, EH-20], TUR, rad=30)
 
@@ -97,5 +98,15 @@ def lookleft(surface):
   roundrects.round_rect(surface, [LEYPOS-20, EYPOS, EW, EH], TUR, rad=30)
   #right
   roundrects.round_rect(surface, [REYPOS-20, EYPOS, EW, EH-20], TUR, rad=30)
+  
+def blink(surface):
+  #left
+  roundrects.round_rect(surface, [LEYPOS, EYPOS, EW, EH], TUR, rad=30)
+  #right
+  roundrects.round_rect(surface, [REYPOS, EYPOS, EW, EH], TUR, rad=30)
+  #draw blak box
+  #rect: (x1, y1, width, height)
+  pygame.draw.rect(surface, BLACK, [LEYPOS-10, SIZEH/2, (EW*2)+35, EH/2])
+  pygame.draw.rect(surface, BLACK, [LEYPOS-10, (SIZEH/2)-SIZEH/4, (EW*2)+35, EH/2])
 
   
