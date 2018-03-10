@@ -14,9 +14,10 @@ from time import sleep
 import botutils
 import emotiondraw as eye
 from random import randint
+import facedetect as face
+from threading import Thread
 
 stoped = False
-
 os.putenv('SDL_FBDEV', '/dev/fb1')
 
 #set default emotion for start
@@ -42,35 +43,57 @@ blinkCount = 0
 nextBlink = randint(1, BLINKMAX);
 oldState = state
 
+
+faceFound = False
+
+def detectCB(result):
+	print "Detect result "
+	#result = face.getResult()
+	if result:
+		faceFound = True
+		#eye.facedetect(lcd, "FACE FOUND")
+	else:
+		faceFound = False
+		#eye.facedetect(lcd, "-")
+
+#t = Thread(target=face.detectWork, )
+#t.daemon = True
+#t.start()
+
+t = face.DetectThread(detectCB)
+t.start()
+
+#face.DetectThread(detectCB).start()
+
 #MAIN LOOP START HERE
 while not stoped:
 	lcd.fill((0,0,0))
 	
 	#BLINK ANIMATE
 	dif =  time.time() - blinkStart 
-	print dif
-	print nextBlink
+#	print dif
+#	print nextBlink
 	
 	if dif >= nextBlink and blinkCount == 0 and state != eye.DOUBT:
-		print "blink"
+		#print "blink"
 		oldState = state
 		state = eye.BLINK
 		eye.blink(lcd)
 		blinkCount = blinkCount +1
 	elif blinkCount == 1:
-		print "neutral"
+		#print "neutral"
 	    	state = oldState
 		#eye.neutral(lcd)
 		blinkCount = blinkCount +1
 	elif blinkCount == 2:
-		print "blink2"
+		#print "blink2"
 		state = eye.BLINK
 		eye.blink(lcd)
 		blinkStart = time.time()
 		nextBlink = randint(1, BLINKMAX);
 		blinkCount = 0
 	else:
-		print "old state"
+		#print "old state"
 		state = oldState
 		#eye.neutral(lcd)
 		blinkCount = 0
@@ -122,6 +145,7 @@ while not stoped:
 				state = eye.HAPPY
 				eye.happy(lcd)
 			if input.startswith('e'):
+				t.cancel()
 				raise SystemExit
 
 			print "echo:" + input
@@ -154,7 +178,14 @@ while not stoped:
 				
 		    oldState = state
 
-	clock.tick(25)
+	if t.getState:
+                eye.facedetect(lcd, "FACE FOUND")
+        else:
+                eye.facedetect(lcd, "-")
+	#img=pygame.image.load("result.jpg") 
+    	#screen.blit(img,(0,0))
+	#lcd.blit(pygame.transform.scale(img, (100, 100)), (0, 20))
+	clock.tick(50)
 	pygame.display.update()
 	#pygame.display.flip()
 	

@@ -43,6 +43,11 @@ def texts(surface, text1, text2):
    surface.blit(scoretext, (0, 0))
    surface.blit(iptext, (SIZEW-iptext.get_width()-5,SIZEH-iptext.get_height()-5))
 
+def facedetect(surface, text1):
+   font=pygame.font.Font(None,20)
+   text=font.render(str(text1), 1,WHITE)
+   surface.blit(text, (SIZEW-text.get_width()-5, 0))
+
 def neutral(surface):
   #rect: (x1, y1, width, height)
   state = NEUTRAL
