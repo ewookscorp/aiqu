@@ -5,6 +5,11 @@ Created on 4.3.2018
 @author: Sami<sami@tabloiti.com>
 '''
 import socket
+import os
+
+def cpu_temp():
+        temp = os.popen("vcgencmd measure_temp").readline()
+        return (temp.replace("temp=",""))
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

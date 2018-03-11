@@ -43,15 +43,28 @@ def keyboard():
 				state = eye.HAPPY
 				eye.happy(lcd)
 
+detect = False
+global faceFound 
+global fx, fy
+faceFound = False
 #
 # Callback for facedetect
 #
-def detectCB(result):
-	print "Detect result "
-	if result:
-		faceFound = True
-	else:
-		faceFound = False
+def detectCB(result, x, y):
+	print "Detect result: " + str(result)
+	print "Face x:" + str(x) + " y:" + str(y)
+	global faceFound
+	global fx, fy
+	fx = x
+	fy = y
+	faceFound = result
+#	if result:
+#		global faceFound
+#		faceFound = True
+#	else:
+#		global faceFound
+#		faceFound = False
+	
 #---------detecCB END -----------------------------------------------------------------------------
 
 #Init detect thread
@@ -63,9 +76,11 @@ t = face.DetectThread(detectCB)
 #
 #--------------------------------------------------------------------------------------------------
 def main():
-	print "Hit 'e' to exit!"
+	print "Hit 'e' to exit! 'i' show face track image"
 	stoped = False
 	os.putenv('SDL_FBDEV', '/dev/fb1')
+	showimg = False
+	fen = False
 
 	#set default emotion for start
 	state = eye.NEUTRAL
@@ -73,10 +88,13 @@ def main():
 
 	#Main code
 	pygame.init()
-	lcd = pygame.display.set_mode((480, 320),pygame.DOUBLEBUF)
+	lcd = pygame.display.set_mode((480, 320),pygame.FULLSCREEN)
+	#pygame.DOUBLEBUF)
 
 	clock = pygame.time.Clock()
 	blinkStart = time.time()
+	detectStart = time.time()
+	readTemp = time.time()	
 	#init eyes
 	eye.neutral(lcd)
 	myip = botutils.get_ip()
@@ -88,9 +106,11 @@ def main():
 	blinkCount = 0
 	nextBlink = randint(1, BLINKMAX);
 	oldState = state
-
-	faceFound = False
-
+	
+	#t = face.DetectThread(detectCB)
+	#t.start()
+	global temp
+	temp =botutils.cpu_temp()
 	#MAIN LOOP START HERE
 	#while not stoped:
 	#while not stoped:
@@ -176,6 +196,16 @@ def main():
 				if input.startswith('h'):
 					state = eye.HAPPY
 					eye.happy(lcd)
+				if input.startswith('i'):
+					if(showimg):
+						showimg = False
+					else:
+						showimg = True
+				if input.startswith('fen'):
+                                        if(fen):
+                                                fen = False
+                                        else:
+                                                fen = True
 				if input.startswith('e'):
 					raise SystemExit
 
@@ -185,21 +215,47 @@ def main():
 				#keyboard()
 					
 				oldState = state
-
+		dif =  time.time() - readTemp
+                if dif >= 20:
+			readTemp = time.time()
+			global temp
+			temp =botutils.cpu_temp() 
 		if faceFound:
-			eye.facedetect(lcd, "FACE FOUND")
+			eye.facedetect(lcd, temp + " FACE FOUND:")
 		else:
-			eye.facedetect(lcd, "-")
-		#img=pygame.image.load("result.jpg") 
-			#screen.blit(img,(0,0))
-		#lcd.blit(pygame.transform.scale(img, (100, 100)), (0, 20))
-		clock.tick(25)
+			eye.facedetect(lcd, temp + "")
+
+		if showimg:
+			try:
+				img=pygame.image.load("result.jpg") 
+				#screen.blit(img,(0,0))
+				lcd.blit(pygame.transform.scale(img, (100, 100)), (0, 20))
+			except:
+				print "FAIL LOAD IMG"
+		clock.tick(60)
 		pygame.display.update()
+		
+		#if t.isAlive():
+		#	t.join()
+		#elif not t.isAlive():
+		
+		#if not t.isAlive():
+		#	dif =  time.time() - detectStart 
+		#	if dif >= 5:
+		#		detectStart = time.time()
+		#		t = face.DetectThread(detectCB)
+		#		t.start()
+		
+		#if not fen:
+		#	if t.isAlive():
+		#		print "Force kill"
+		#		t.join()
+		#	eye.facedetect(lcd, "-")
+			
 	pygame.quit()     # Once we leave the loop, close the window.
 #------------------END MAIN LOOPER-----------------------------------------------------------------
 		
 #Start botty		
 
-main()
-	 
+main()	 
 
