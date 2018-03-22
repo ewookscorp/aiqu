@@ -2,7 +2,7 @@ Raspberry pi emotion eye project for ALVIN
 http://www.alvinai.com/
 
 Run:
-sudo python botty.py
+sudo python aiqu.py
 
 Requires:
 Python, pygame

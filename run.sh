@@ -1,2 +1,2 @@
 #/bin/bash
-sudo python botti.py
+sudo python aiqu.py
