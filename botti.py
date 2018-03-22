@@ -5,6 +5,11 @@ Created on 4.3.2018
 '''
 
 
+#configuration
+CAMEENABLED = False
+#configureatio end
+
+
 import pygame
 import os
 import select
@@ -14,7 +19,10 @@ from time import sleep
 import botutils
 import emotiondraw as eye
 from random import randint
-import facedetect as face
+
+if CAMEENABLED:
+	import facedetect as face
+
 from threading import Thread
 
 
@@ -51,13 +59,14 @@ faceFound = False
 # Callback for facedetect
 #
 def detectCB(result, x, y):
-	print "Detect result: " + str(result)
-	print "Face x:" + str(x) + " y:" + str(y)
-	global faceFound
-	global fx, fy
-	fx = x
-	fy = y
-	faceFound = result
+	if CAMEENABLED:
+		print "Detect result: " + str(result)
+		print "Face x:" + str(x) + " y:" + str(y)
+		global faceFound
+		global fx, fy
+		fx = x
+		fy = y
+		faceFound = result
 #	if result:
 #		global faceFound
 #		faceFound = True
@@ -68,7 +77,8 @@ def detectCB(result, x, y):
 #---------detecCB END -----------------------------------------------------------------------------
 
 #Init detect thread
-t = face.DetectThread(detectCB)
+if CAMEENABLED:
+	t = face.DetectThread(detectCB)
 
 #--------------------------------------------------------------------------------------------------
 #
@@ -107,8 +117,10 @@ def main():
 	nextBlink = randint(1, BLINKMAX);
 	oldState = state
 	
-	#t = face.DetectThread(detectCB)
-	#t.start()
+	if CAMEENABLED:
+		t = face.DetectThread(detectCB)
+		t.start()
+
 	global temp
 	temp =botutils.cpu_temp()
 	#MAIN LOOP START HERE
@@ -239,12 +251,14 @@ def main():
 		#	t.join()
 		#elif not t.isAlive():
 		
-		#if not t.isAlive():
-		#	dif =  time.time() - detectStart 
-		#	if dif >= 5:
-		#		detectStart = time.time()
-		#		t = face.DetectThread(detectCB)
-		#		t.start()
+		if CAMEENABLED:
+			if not t.isAlive():
+				dif =  time.time() - detectStart 
+				if dif >= 5:
+					detectStart = time.time()
+					if CAMEENABLED:
+						t = face.DetectThread(detectCB)
+						t.start()
 		
 		#if not fen:
 		#	if t.isAlive():
