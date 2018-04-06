@@ -7,6 +7,7 @@ Created on 4.3.2018
 import roundrects
 import pygame
 from sys import getsizeof
+import config
 
 RED = (255,0,0)
 TUR = (50,156,198)
@@ -15,15 +16,29 @@ WHITE = (255,255,255)
 
 #SIZEW = 320
 #SIZEH = 240
-SIZEW = 480
-SIZEH = 320
 
-EW = 70*1.5
-EH = 100*1.5
-MARGIN = 10
-EYPOS = (SIZEH/2)-(EH/2) #common for both eye
-LEYPOS = (SIZEW/2)-(EW+MARGIN)
-REYPOS = (SIZEW/2)+MARGIN 
+#SIZEW = 480
+#SIZEH = 320
+
+if config.ROTATE:
+    SIZEW = 320
+    SIZEH = 480
+else:
+    SIZEW = 480
+    SIZEH = 320
+
+EW = 70*1.5 #Eye width
+EH = 100*1.5 #Eye height
+MARGIN = 10 #margin between eyes
+
+if config.ROTATE:
+   EYPOS = (SIZEH/2)-(EH/2) #common for both eye
+   LEYPOS = (SIZEW/2)-(EW+MARGIN)
+   REYPOS = (SIZEW/2)+MARGIN
+else: 
+   EYPOS = (SIZEH/2)-(EH/2) #common for both eye
+   LEYPOS = (SIZEW/2)-(EW+MARGIN)
+   REYPOS = (SIZEW/2)+MARGIN 
 
 #Emotions
 NEUTRAL 	= 	1
@@ -35,12 +50,12 @@ HAPPY 		= 	6
 BLINK		= 	7
 
 
-def texts(surface, text1, text2):
+def texts(surface, text1, text2, mode):
    font=pygame.font.Font(None,20)
    font2 = pygame.font.Font(None,20)
-   scoretext=font.render("FPS:" + str(text1), 1,WHITE)
+   fpstext=font.render("FPS:" + str(text1)+ " " + mode, 1,WHITE)
    iptext = font2.render(text2, 1,WHITE)
-   surface.blit(scoretext, (0, 0))
+   surface.blit(fpstext, (0, 15))
    surface.blit(iptext, (SIZEW-iptext.get_width()-5,SIZEH-iptext.get_height()-5))
 
 def facedetect(surface, text1):
@@ -111,7 +126,15 @@ def blink(surface):
   roundrects.round_rect(surface, [REYPOS, EYPOS, EW, EH], TUR, rad=30)
   #draw blak box
   #rect: (x1, y1, width, height)
-  pygame.draw.rect(surface, BLACK, [LEYPOS-10, SIZEH/2, (EW*2)+35, EH/2])
-  pygame.draw.rect(surface, BLACK, [LEYPOS-10, (SIZEH/2)-SIZEH/4, (EW*2)+35, EH/2])
+  pygame.draw.rect(surface, BLACK, [LEYPOS-10, SIZEH/2, (EW*2)+35, EH/1.4]) #2
+  pygame.draw.rect(surface, BLACK, [LEYPOS-10, (SIZEH/2)-SIZEH/4, (EW*2)+35, EH/1.4]) #2
 
-  
+def sleep(surface):
+  #left
+  roundrects.round_rect(surface, [LEYPOS, EYPOS, EW, EH], TUR, rad=30)
+  #right
+  roundrects.round_rect(surface, [REYPOS, EYPOS, EW, EH], TUR, rad=30)
+  #draw blak box
+  #rect: (x1, y1, width, height)
+  pygame.draw.rect(surface, BLACK, [LEYPOS-10, SIZEH/2, (EW*2)+35, EH/1.4])
+  pygame.draw.rect(surface, BLACK, [LEYPOS-10, (SIZEH/2)-SIZEH/4, (EW*2)+35, EH/1.4])

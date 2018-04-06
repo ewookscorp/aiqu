@@ -5,6 +5,7 @@ import numpy
 import time
 import threading
 from threading import Thread
+import config
 
 	
 class DetectThread(Thread):
@@ -34,6 +35,7 @@ def detect(cb):
 	with picamera.PiCamera() as camera:
 		camera.resolution = (320, 240)
 		camera.capture(stream, format='jpeg')
+		camera.rotation = config.camrotate
 
 	#Convert the picture into a numpy array
 	buff = numpy.fromstring(stream.getvalue(), dtype=numpy.uint8)
@@ -64,6 +66,7 @@ def detect(cb):
 		faceY = y
 
 	#Save the result image
+	print "Save img"
 	cv2.imwrite('result.jpg',image)
 
 	if len(faces) >= 1:

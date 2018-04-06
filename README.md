@@ -4,6 +4,11 @@ http://www.alvinai.com/
 Run:
 sudo python aiqu.py
 
+Run on boot (optional)
+1: edit /etc/rc.local
+2: add followed line
+   /home/pi/aiqu/runonboot.sh &
+
 Requires:
 Python, pygame
 
