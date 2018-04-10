@@ -1,0 +1,31 @@
+<html>
+<script>
+
+    function updateImage() {
+        console.log("UPDATE IMAGES");
+	var image = document.getElementById("img");
+         var image2 = document.getElementById("img2");
+        var image3 = document.getElementById("img3");
+        var image4 = document.getElementById("img4");
+        image.src = image.src.split("?")[0] + "?" + new Date().getTime();
+        image2.src = image2.src.split("?")[0] + "?" + new Date().getTime();
+        image3.src = image3.src.split("?")[0] + "?" + new Date().getTime();
+ 	image4.src = image4.src.split("?")[0] + "?" + new Date().getTime();
+	 setInterval(updateImage, 10000);
+    }
+
+window.onload = function() {
+
+    setInterval(updateImage, 10000);
+}
+
+</script>
+
+<body onload="updateImage();">
+<img id="img4" src="face.jpg" style="height:50%"/>
+<img id="img" src="motion.jpg" style="height:50%"/>
+<img id="img2" src="motion2.jpg" style="height:50%"/>
+<img id="img3" src="blur.jpg" style="height:50%"/>
+
+</body>
+</html>

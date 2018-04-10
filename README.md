@@ -10,7 +10,11 @@ Run on boot (optional)
    /home/pi/aiqu/runonboot.sh &
 
 Requires:
-Python, pygame
+Python, pygame, imutils
+
+
+pip install imutils
+pip install --upgrade imutils
 
 OpenCV for raspberry
 The first thing to do is to find out that everything is working... 
@@ -26,3 +30,7 @@ Install the essentials:
 ''' 
 sudo apt-get install python-wxgtk2.8 python-matplotlib python-opencv python-pip python-numpy
 '''
+
+Text to speech
+
+sudo pip install pyttsx

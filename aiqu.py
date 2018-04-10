@@ -1,4 +1,4 @@
-'''
+﻿'''
 Created on 4.3.2018
 
 @author: Sami<sami@tabloiti.com>
@@ -15,6 +15,7 @@ import emotiondraw as eye
 from random import randint
 import config
 import weatherdraw as ws
+from espeak import espeak
 
 if config.CAMEENABLED:
 	import facedetect as face
@@ -41,8 +42,11 @@ this.showimg = False
 this.state = eye.NEUTRAL
 this.oldState = state
 this.gosleep = 0
+this.clock = 0
+this.readTemp = 0
+this.sleeping = False
 
-#Aiqu modes, EYE, RADIO, WEATHER, SLEEP
+#Aiqu modes, EYE, RADIO, WEATHER, SLEEP, DEEP
 this.mode  = 'EYE'
 
 
@@ -50,7 +54,11 @@ this.mode  = 'EYE'
 # ALL FUNCTIONS START HERE
 #
 def wakeup():
-    this.gosleep = time.time()
+	print "WAKER UP!"
+	this.state = eye.DOUBT
+	this.mode = "EYE"
+	this.sleeping = False
+	this.gosleep = time.time()
 
 def keyboard():
 	for event in pygame.event.get():
@@ -65,8 +73,8 @@ def keyboard():
 				state =  eye.LOOKLEFT
 				eye.lookleft(lcd)
 			if event.key == pygame.K_UP:
-				state = eye.NEUTRAL
-				eye.neutral(lcd)
+				state = eye.LOOKUP
+				eye.lookup(lcd)
 			if event.key == pygame.K_DOWN:
 				state = eye.LOOKDOWN
 				eye.lookdown(lcd)
@@ -80,46 +88,52 @@ def keyboard():
 				this.mode = "WEATHER"
 #
 # HANDLE EYE UPDATE IN LOOP				
-def eyemode(lcd, myip, readTemp, clock):
-	#BLINK ANIMATE
-
-	dif =  time.time() - this.blinkStart
+def eyemode(lcd, myip):
 	
 	#check if switch to sleeping mode, due no action ongoing
-    	sleep = time.time() - this.gosleep
+	sleep = time.time() - this.gosleep
 	#print "Sleep: ",sleep
-	sleeping = False
-	if sleep >= config.SLEEP:
-	    #print "zzzz"
-	    sleeping = True
-
 	
-	if sleeping:
-	    this.oldState = this.state
-	    eye.sleep(lcd)
+	this.sleeping = False
+	if sleep >= config.SLEEP:
+		this.sleeping = True
+
+		#print "EYE STATE:" ,  this.state	
+
+	if this.sleeping:
+		this.oldState = this.state
+		this.mode = "SLEEP"
+		eye.sleep(lcd)
 	else:
+		#this.mode ="EYE"
+		#BLINK ANIMATE
+		
+		dif =  time.time() - this.blinkStart
+		
 		if dif >= this.nextBlink and this.blinkCount == 0 and this.state != eye.DOUBT:
-			#print "blink start"
+			print "blink start"
 			this.oldState = this.state
 			this.state = eye.BLINK
 			eye.blink(lcd)
 			this.blinkCount = this.blinkCount +1
 		elif this.blinkCount == 1:
-			#print "neutral"
+			print "neutral"
 			this.state = this.oldState
-			#eye.neutral(lcd)
+			eye.neutral(lcd)
 			this.blinkCount = this.blinkCount +1
 		elif this.blinkCount == 2:
-			#print "blink 2"
+			print "blink 2"
 			this.state = eye.BLINK
 			eye.blink(lcd)
 			this.blinkStart = time.time()
+			print "Generate Rand"
 			this.nextBlink = randint(1, BLINKMAX);
-			this.blinkCount = 0
-		else:
-			#print "old state"
-			this.state = this.oldState
-			#eye.neutral(lcd)
+			this.blinkCount = 3
+			print "NEXT"
+		elif this.blinkCount == 3:
+			print "back to normal"
+			#this.state = this.oldState
+			this.state = eye.NEUTRAL
 			this.blinkCount = 0
 		
 		#BLINK ANIMATE DONE
@@ -129,6 +143,8 @@ def eyemode(lcd, myip, readTemp, clock):
 			eye.neutral(lcd)
 		if this.state == eye.LOOKDOWN:
 			eye.lookdown(lcd)
+		if this.state == eye.LOOKUP:
+			eye.lookup(lcd)
 		if this.state == eye.LOOKRIGHT: 
 			eye.lookright(lcd)
 		if this.state == eye.LOOKLEFT:
@@ -141,18 +157,24 @@ def eyemode(lcd, myip, readTemp, clock):
 			eye.blink(lcd)
 	#Else normal mode end here
 	
-	## All bellowed are need in any mode
-	this.fps = clock.get_fps()
-	eye.texts(lcd,this.fps, myip, mode)
+	pushUpdate(lcd, myip)
+# END EYE MODE HANDLE
 
+def pushUpdate(lcd, myip):
+	
+	## All bellowed are need in any mode
+	this.clock.tick(40)
+	this.fps = this.clock.get_fps()
+
+	eye.texts(lcd,this.fps, myip, this.mode, this.state)
 	#For test eye move via console input
 	i,o,e = select.select([sys.stdin],[],[],0.0001)
 	for s in i:
 		if s == sys.stdin:
 			input = sys.stdin.readline()
-			wakeup()
+			if sleeping == True:
+				wakeup()
 			if input.startswith('r'):
-				print "Right"
 				this.state = eye.LOOKRIGHT
 				eye.lookright(lcd)
 			if input.startswith('l'):
@@ -164,6 +186,9 @@ def eyemode(lcd, myip, readTemp, clock):
 			if input.startswith('d'):
 				this.state = eye.LOOKDOWN
 				eye.lookdown(lcd)
+			if	input.startswith('u'):
+				this.state == eye.LOOKUP
+				eye.lookup(lcd)
 			if input.startswith('y'):
 				this.state = eye.DOUBT
 				eye.doubt(lcd)
@@ -195,44 +220,54 @@ def eyemode(lcd, myip, readTemp, clock):
 		 
 			#keyboard()
 				
-			this.oldState = this.state
-	dif =  time.time() - readTemp
+	this.oldState = this.state
+	dif =  time.time() - this.readTemp
+
 	if dif >= 20:
-		readTemp = time.time()
+		print "Read TEMP"
+		this.readTemp = time.time()
 		global temp
-		temp = botutils.cpu_temp() 
+		temp = botutils.cpu_temp()
+		
 	if faceFound:
-		eye.facedetect(lcd, temp + " FACE FOUND:")
+		eye.facedetect(lcd, temp + " FACE FOUND")
+		if this.sleeping == True:
+			print "CALL WAKEUP"
+			wakeup()
 	else:
 		eye.facedetect(lcd, temp + "")
 
-	if this.showimg:
+	if this.showimg == True:
 		try:
-			img=pygame.image.load("result.jpg") 
+			img=pygame.image.load("./temp/face.jpg") 
 			#screen.blit(img,(0,0))
-			lcd.blit(pygame.transform.scale(img, (100, 100)), (0, 20))
+			img = pygame.transform.rotate(img,0)
+			lcd.blit(pygame.transform.scale(img, (300, 300)), (0, 20))
 		except:
 			print "FAIL LOAD IMG"
-
-	clock.tick(60)
+	
+	#print "UPDATE SCREEN ", this.fps
 	pygame.display.update()
-
+	
+	
 	if config.CAMEENABLED:
 		if not this.t.isAlive():
 			dif =  time.time() - this.detectStart 
-			if dif >= 5:
+			#print "DIF:" , dif
+			if dif >= config.DETECT_DIF:
 				this.detectStart = time.time()
 				if config.CAMEENABLED:
+					print "NEW DETECT THREAD"
 					this.t = face.DetectThread(detectCB)
+					this.t.setState(this.sleeping)
 					this.t.start()
-# END EYE MODE HANDLE
 
-	
+					
 #
 #
 # Callback for facedetect
 #
-def detectCB(result, x, y):
+def detectCB(result, x, y, motion, pos):
 	if config.CAMEENABLED:
 		print "Detect result: " + str(result)
 		print "Face x:" + str(x) + " y:" + str(y)
@@ -241,6 +276,30 @@ def detectCB(result, x, y):
 		fx = x
 		fy = y
 		faceFound = result
+
+		if motion and this.sleeping == True:
+			#print "MOTION DETECTED " + pos
+			print "MOTION WAKEUP"
+			wakeup()
+			
+		if this.sleeping == False:
+			if pos == "LEFT":
+				print "Motion LEFT"
+				this.state = eye.LOOKLEFT
+			elif pos == "RIGHT":
+				print "Motion Right"
+				this.state = eye.LOOKRIGHT
+			elif pos == "DOWN":
+				print "Motion Down"
+				this.state = eye.LOOKDOWN
+			elif pos == "UP":
+				print "Motion Up"
+				this.state = eye.LOOKUP
+			else:
+				print "Motion Neutral"
+				this.state = eye.NEUTRAL
+
+
 #	if result:
 #		global faceFound
 #		faceFound = True
@@ -253,6 +312,7 @@ def detectCB(result, x, y):
 #Init detect thread
 if config.CAMEENABLED:
 	this.t = face.DetectThread(detectCB)
+	this.t.setState(this.sleeping)
 
 #--------------------------------------------------------------------------------------------------
 #
@@ -261,28 +321,31 @@ if config.CAMEENABLED:
 #--------------------------------------------------------------------------------------------------
 def main():
 	print "Hit 'e' to exit! 'i' show face track image"
+	espeak.synth("Hello My name is AIQU")
 	stoped = False
-	os.putenv('SDL_FBDEV', '/dev/fb1')
+	os.putenv('SDL_FBDEV', config.OUTPUT)
 	this.showimg = False
 	fen = False
 
 	#Main code
 	pygame.init()
 	if config.ROTATE:
-	    lcd = pygame.display.set_mode((320, 480),pygame.FULLSCREEN)
+        #320, 480
+		lcd = pygame.display.set_mode((config.W, config.H), pygame.FULLSCREEN)
 	else:
-	    lcd = pygame.display.set_mode((480, 320),pygame.FULLSCREEN)
-	#pygame.DOUBLEBUF)
+		lcd = pygame.display.set_mode((config.H, config.W), pygame.FULLSCREEN)
+	#lcd = pygame.display.set_mode((0, 0),pygame.FULLSCREEN)
+    #pygame.DOUBLEBUF)
 
 	#initial values
 	this.detectStart = time.time()
-	readTemp = time.time()
+	this.readTemp = time.time()
 	this.blinkStart = time.time()
 	this.gosleep = time.time()
-	clock = pygame.time.Clock()
+	this.clock = pygame.time.Clock()
 	
 	BLINKMAX = 10
-        nextBlink = randint(1, BLINKMAX)
+	nextBlink = randint(1, BLINKMAX)
 
 
 	#init eyes
@@ -294,25 +357,37 @@ def main():
 
 	if config.CAMEENABLED:
 		this.t = face.DetectThread(detectCB)
+		this.t.setState(this.sleeping)
 		this.t.start()
 
 	global temp
 	temp = botutils.cpu_temp()
 	#MAIN LOOP START HERE
 	#while not stoped:
-	#while not stoped:
+	#this.clock.tick(config.fps)
 	while True:
-		ev = pygame.event.poll()    # Look for any event
-        	if ev.type == pygame.QUIT:  # Window close button clicked?
-            		break                   #   ... leave game loop
-			
-		lcd.fill((0,0,0))
+		#this.fps = this.clock.get_fps()
+		#print "FPS:" , this.fps
+		#print "LOOP start"
 		
-		if this.mode == "EYE":
-			eyemode(lcd, myip, readTemp, clock)
-		if this.mode == "WEATHER":
-			ws.drawGUI(lcd)
+		ev = pygame.event.poll()    # Look for any event
+		if ev.type == pygame.QUIT:  # Window close button clicked?
+			break                   #   ... leave game loop
 			
+		lcd.fill((255,0,0))
+		#print "LOOP midle: " ,sleeping
+		#print this.mode
+		
+		if this.sleeping == True:
+			eye.sleep(lcd)
+			pushUpdate(lcd, myip)
+		elif (this.mode == "EYE") or (this.mode == "SLEEP"):
+			#print "NORMAL UPDATE"
+			eyemode(lcd, myip)
+		elif this.mode == "WEATHER":
+			ws.drawGUI(lcd)
+			pygame.display.update()
+	print "LOOP end"
 	pygame.quit()     # Once we leave the loop, close the window.
 #------------------END MAIN LOOPER-----------------------------------------------------------------
 		
