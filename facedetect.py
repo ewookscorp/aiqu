@@ -78,12 +78,11 @@ def motion(gray, color):
 		# compute the bounding box for the contour, draw it on the frame,
 		# and update the text
 		(x, y, w, h) = cv2.boundingRect(c)
-		cv2.rectangle(color, (x, y), (x + w, y + h), (255, 255, 0), 2)
+		#cv2.rectangle(color, (x, y), (x + w, y + h), (255, 255, 0), 2)
 		cv2.rectangle(gray, (x, y), (x + w, y + h), (255, 255, 0), 2)
 
-		#cv2.imwrite(config.TEMP_PATH+ "/blur.jpg", gray)
-		#cv2.imwrite(config.TEMP_PATH+ "/motion2.jpg",color)
-		#cv2.imwrite(config.TEMP_PATH+ "/motion.jpg",color)
+		cv2.imwrite(config.TEMP_PATH+ "/blur.jpg", gray)
+		cv2.imwrite(config.TEMP_PATH+ "/motion2.jpg",color)
 
 		print "BOX X: " ,x
 		print "BOX Y: ", y
@@ -99,9 +98,10 @@ def motion(gray, color):
 	else:
 		this.motionDetect = False
 		
-	cv2.imwrite(config.TEMP_PATH+ "/blur.jpg", gray)
-	cv2.imwrite(config.TEMP_PATH+ "/motion2.jpg",color)
+	#cv2.imwrite(config.TEMP_PATH+ "/blur.jpg", gray)
+	#cv2.imwrite(config.TEMP_PATH+ "/motion2.jpg",color)
 	cv2.imwrite(config.TEMP_PATH+ "/motion.jpg",color)
+
 def startStrem():
 	this.stream = io.BytesIO()
 
@@ -110,7 +110,11 @@ def startStrem():
 	with picamera.PiCamera() as camera:
 		camera.resolution = (320, 240)
 		camera.brightness = config.BRIGHTNES
-		camera.capture(this.stream, format='jpeg')
+		camera.awb_mode = config.AWB
+		camera.exposure_mode = 'auto'
+		#camera.awb_gains = (1.0, 1.0)
+		camera.capture(this.stream, format='jpeg', use_video_port=True)
+		camera.start_preview()
 	
 		
 def detect(cb, sleeping):
@@ -140,13 +144,13 @@ def detect(cb, sleeping):
 	#Now creates an OpenCV image
 	image = cv2.imdecode(buff, 1)
 	#image = cv2.imdecode(frame, 1)
-	image = imutils.rotate(image, -90)
+	image = imutils.rotate(image, config.IMGROTATE)
 
 	#Load a cascade file for detecting faces
 	#face_cascade = cv2.CascadeClassifier('/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml')
 	#face_cascade = cv2.CascadeClassifier('/home/pi/botty/face/haarcascade_frontalface_alt.xml')
 	face_cascade = cv2.CascadeClassifier('/home/pi/botty/xml/face.xml')
-	profileface_cascade = cv2.CascadeClassifier('/home/pi/botty/haarcascade_profileface.xml')
+	#profileface_cascade = cv2.CascadeClassifier('/home/pi/botty/haarcascade_profileface.xml')
 	
 
 	#Convert to grayscale
@@ -170,7 +174,9 @@ def detect(cb, sleeping):
 			faceY = y
 			faceW = w
 			faceH = h
-
+		print "Save img face"
+		cv2.imwrite(config.TEMP_PATH+ "/face.jpg",image)
+		
 		Cface = [(faceW/2+faceX),(faceH/2+faceY)] #check the motion position on image
 		print Cface
 
@@ -191,12 +197,13 @@ def detect(cb, sleeping):
 				this.motionPlace = "UP"
 
 	#Save the result image
-	print "Save img"
-	if config.DEBUG or sleeping == True:
-		cv2.imwrite(config.TEMP_PATH+ "/face.jpg",image)
 	
-	if sleeping == True:
-		cv2.imwrite(config.TEMP_PATH+ "/motion.jpg",gray)
+	#if config.DEBUG or sleeping == True:
+	#cv2.imwrite(config.TEMP_PATH+ "/face.jpg",image)
+	
+	#if sleeping == True:
+	print "Save img motion"
+	cv2.imwrite(config.TEMP_PATH+ "/motion.jpg",gray)
 
 	if sleeping == True:
 		detected = False

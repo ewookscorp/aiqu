@@ -19,13 +19,20 @@ WHITE = (255,255,255)
 
 #SIZEW = 480
 #SIZEH = 320
+pygame.init()
+infoObject = pygame.display.Info()
+
+H = infoObject.current_h
+W = infoObject.current_w
+
+
 
 if config.ROTATE:
-    SIZEW = config.H
-    SIZEH = config.W
+    SIZEW = H
+    SIZEH = W
 else:
-    SIZEW = config.W
-    SIZEH = config.H
+    SIZEW = W
+    SIZEH = H
 
 EW = 70*1.5 #Eye width
 EH = 100*1.5 #Eye height

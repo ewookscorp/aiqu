@@ -329,11 +329,16 @@ def main():
 
 	#Main code
 	pygame.init()
+	infoObject = pygame.display.Info()
+
+	H = infoObject.current_h
+	W = infoObject.current_w
+	print infoObject
 	if config.ROTATE:
         #320, 480
-		lcd = pygame.display.set_mode((config.W, config.H), pygame.FULLSCREEN)
+		lcd = pygame.display.set_mode((H, W), pygame.FULLSCREEN)
 	else:
-		lcd = pygame.display.set_mode((config.H, config.W), pygame.FULLSCREEN)
+		lcd = pygame.display.set_mode((W, H), pygame.FULLSCREEN)
 	#lcd = pygame.display.set_mode((0, 0),pygame.FULLSCREEN)
     #pygame.DOUBLEBUF)
 
@@ -374,7 +379,7 @@ def main():
 		if ev.type == pygame.QUIT:  # Window close button clicked?
 			break                   #   ... leave game loop
 			
-		lcd.fill((255,0,0))
+		lcd.fill((0,0,0))
 		#print "LOOP midle: " ,sleeping
 		#print this.mode
 		

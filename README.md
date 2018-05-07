@@ -16,6 +16,15 @@ Python, pygame, imutils
 pip install imutils
 pip install --upgrade imutils
 
+for pi3d
+sudo pip install svg.path
+
+for IPC
+
+pip install pika
+pip install bson
+https://www.iotshaman.com/blog/content/how-to-install-rabbitmq-on-a-raspberry-pi
+
 OpenCV for raspberry
 The first thing to do is to find out that everything is working... 
 Your rpi must be connected to 

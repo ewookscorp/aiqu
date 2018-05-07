@@ -11,20 +11,26 @@
         image2.src = image2.src.split("?")[0] + "?" + new Date().getTime();
         image3.src = image3.src.split("?")[0] + "?" + new Date().getTime();
  	image4.src = image4.src.split("?")[0] + "?" + new Date().getTime();
-	 setInterval(updateImage, 10000);
+	 #setInterval(updateImage, 1000);
     }
 
 window.onload = function() {
-
-    setInterval(updateImage, 10000);
+    setInterval(updateImage, 1000);
 }
 
 </script>
 
 <body onload="updateImage();">
+<header>FACE face.jpg</header>
 <img id="img4" src="face.jpg" style="height:50%"/>
+
+<header>MOT motion.jpg</header>
 <img id="img" src="motion.jpg" style="height:50%"/>
+
+<header>MOT2 motion2.jpg</header>
 <img id="img2" src="motion2.jpg" style="height:50%"/>
+
+<header>BLUR blur.jpg</header>
 <img id="img3" src="blur.jpg" style="height:50%"/>
 
 </body>
