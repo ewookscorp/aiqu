@@ -18,7 +18,7 @@ SLEEP = 100  #Go sleep if no actions, time is in ms
 
 #weather information config
 #https://home.openweathermap.org
-apikey = "XX"
+apikey = ""
 city   = "Kempele"
 
 #picamera config

@@ -1,0 +1,30 @@
+
+#configuration
+#current_w = 640, current_h = 480
+#640x480
+#720 480
+#320 480 
+
+MIPMAP = True # whether to anti-alias map screen pixels to image pixels 
+H = 480 W = 320
+               # set False if no scaling required (faster, less memory 
+               # needed)
+OUTPUT = '/dev/fb0' DEBUG = True FPS = 60 TEMP_PATH = "./temp" 
+CAMEENABLED = True ROTATE = False #Rotate screen SLEEP = 10 #Go sleep if 
+no actions, time is in ms
+
+#weather information config
+#https://home.openweathermap.org
+apikey = "4e44be45c58d857e8a8ffd8a708b74dd"
+city   = "Kempele"
+
+#picamera config
+camrotate = 90 #camera rotate
+motionsense = 2000
+delta_thresh = 5
+min_area = 5000 #default 5000
+min_motion_frames = 8
+DETECT_DIF = 2
+BRIGHTNES = 60
+AWB = 'auto'
+#configureatio end
